@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>급식배틀</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Inter, 'Pretendard', 'Segoe UI', system-ui, sans-serif;
+        background: #f8fafc;
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --card-soft: #f8fafc;
+        --text: #111827;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --primary: #3182f6;
+        --primary-dark: #1d4ed8;
+        --primary-soft: rgba(49, 130, 246, 0.08);
+        --shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-height: 100%; }
+      body {
+        background:
+          radial-gradient(circle at top, rgba(49, 130, 246, 0.10), transparent 34%),
+          linear-gradient(180deg, #ffffff 0%, #f8fafc 28%, #eef2f7 100%);
+        color: var(--text);
+      }
+      button, input { font: inherit; }
+      .shell {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+      }
+      .hero {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 18px;
+        padding: 14px 4px 2px;
+      }
+      .badge {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: var(--primary-soft);
+        color: var(--primary);
+        font-weight: 800;
+        font-size: 12px;
+        letter-spacing: -0.01em;
+      }
+      .title {
+        font-size: clamp(30px, 4vw, 42px);
+        line-height: 1.1;
+        margin: 0;
+        letter-spacing: -0.05em;
+      }
+      .subtitle { color: var(--muted); margin: 0; font-size: 16px; line-height: 1.55; }
+      .message {
+        padding: 14px 16px;
+        border-radius: 20px;
+        border: 1px solid #e6edf5;
+        background: var(--card);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 12px;
+      }
+      .card {
+        border-radius: 28px;
+        border: 1px solid #e7edf5;
+        background: var(--card);
+        box-shadow: 0 1px 1px rgba(15, 23, 42, 0.02), 0 12px 28px rgba(15, 23, 42, 0.05);
+        overflow: hidden;
+      }
+      .card-head {
+        padding: 22px 22px 0;
+      }
+      .card-title {
+        margin: 0;
+        font-size: 20px;
+        letter-spacing: -0.04em;
+      }
+      .card-desc {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .section {
+        display: grid;
+        gap: 14px;
+        padding: 18px 22px 22px;
+      }
+      .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; }
+      .field { display: grid; gap: 6px; min-width: 160px; }
+      .field label { font-size: 13px; color: var(--muted); }
+      input[type="text"], input[type="date"] {
+        border: 1px solid #dbe5ef;
+        border-radius: 18px;
+        background: #fff;
+        padding: 14px 16px;
+        min-height: 48px;
+        outline: none;
+        transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+      }
+      input[type="text"]:focus, input[type="date"]:focus {
+        border-color: rgba(49, 130, 246, 0.72);
+        box-shadow: 0 0 0 4px rgba(49, 130, 246, 0.10);
+      }
+      .button {
+        border: 0;
+        border-radius: 18px;
+        min-height: 48px;
+        padding: 0 18px;
+        background: var(--primary);
+        color: white;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        cursor: pointer;
+        transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+        box-shadow: 0 10px 22px rgba(49, 130, 246, 0.16);
+      }
+      .button:hover { transform: translateY(-1px); background: var(--primary-dark); }
+      .button.secondary {
+        background: #f5f8fd;
+        color: var(--text);
+        box-shadow: none;
+      }
+      .button:disabled { opacity: .6; cursor: not-allowed; }
+      .list { display: grid; gap: 10px; }
+      .school {
+        width: 100%;
+        text-align: left;
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 20px;
+      }
+      .school.selected {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 12px 26px rgba(49, 130, 246, 0.2);
+      }
+      .school-meta { color: inherit; opacity: .8; font-size: 13px; }
+      .divider { height: 1px; background: var(--border); margin: 0 22px; }
+      .meal-day {
+        padding: 16px;
+        border-radius: 20px;
+        background: #f8fbff;
+        border: 1px solid #e6edf5;
+      }
+      .meal-date { margin: 0 0 8px; font-size: 16px; }
+      .meal-menu { margin: 4px 0 0; }
+      .footer { margin-top: 18px; color: var(--muted); font-size: 13px; text-align: center; }
+      .spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,.45);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        vertical-align: -3px;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="badge">School Lunch</div>
+        <h1 class="title">급식배틀</h1>
+        <p class="subtitle">학교명을 빠르게 찾고, 날짜 범위를 골라 중식 급식을 한눈에 확인하세요.</p>
+        <div id="status" class="message">학교명을 입력하고 검색해 보세요.</div>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <div class="card-head">
+            <h2 class="card-title">1. 학교 검색 및 선택</h2>
+            <p class="card-desc">학교명 일부만 입력해도 바로 검색됩니다.</p>
+          </div>
+          <div class="section">
+            <div class="row">
+              <div class="field" style="flex: 1 1 100%;">
+                <label for="query">학교명</label>
+                <input id="query" type="text" value="서울" placeholder="예: 서울, 강남, 세종" />
+              </div>
+              <button id="searchSchools" class="button" style="width: 100%;">학교 검색</button>
+            </div>
+            <div id="schools" class="list"></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <h2 class="card-title">2. 날짜 범위 선택</h2>
+            <p class="card-desc">시작일과 종료일을 지정하세요. 조회는 최대 31일까지 가능합니다.</p>
+          </div>
+          <div class="section">
+            <div class="row">
+              <div class="field" style="flex: 1 1 0;">
+                <label for="startDate">시작일</label>
+                <input id="startDate" type="date" />
+              </div>
+              <div class="field" style="flex: 1 1 0;">
+                <label for="endDate">종료일</label>
+                <input id="endDate" type="date" />
+              </div>
+            </div>
+            <div id="selectedSchool" class="message">선택된 학교가 없습니다.</div>
+            <button id="searchMeals" class="button" disabled>급식 조회</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="card" style="margin-top: 16px;">
+        <div class="card-head">
+          <h2 class="card-title">3. 결과 확인</h2>
+          <p class="card-desc">날짜별 중식 급식이 표시됩니다.</p>
+        </div>
+        <div class="section">
+          <div id="results" class="message">학교를 선택하고 조회를 실행하면 결과가 표시됩니다.</div>
+        </div>
+      </section>
+
+      <div class="footer">Fluent UI 스타일 · FastAPI · NEIS Open API</div>
+    </main>
+
+    <script>
+      const state = {
+        schools: [],
+        selectedSchool: null,
+        mealResult: null,
+        loadingSchools: false,
+        loadingMeals: false,
+        status: '학교명을 입력하고 검색해 보세요.',
+        error: null,
+      }
+
+      const els = {
+        status: document.getElementById('status'),
+        query: document.getElementById('query'),
+        schools: document.getElementById('schools'),
+        selectedSchool: document.getElementById('selectedSchool'),
+        startDate: document.getElementById('startDate'),
+        endDate: document.getElementById('endDate'),
+        searchSchools: document.getElementById('searchSchools'),
+        searchMeals: document.getElementById('searchMeals'),
+        results: document.getElementById('results'),
+      }
+
+      const today = new Date()
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(today.getDate() - 7)
+      const fmt = (d) => d.toISOString().slice(0, 10)
+      els.startDate.value = fmt(sevenDaysAgo)
+      els.endDate.value = fmt(today)
+      els.startDate.max = fmt(today)
+      els.endDate.max = fmt(today)
+      els.startDate.min = '2020-01-01'
+      els.endDate.min = '2020-01-01'
+
+      const render = () => {
+        els.status.textContent = state.error ?? state.status
+        els.selectedSchool.textContent = state.selectedSchool
+          ? `${state.selectedSchool.schulNm} · ${state.selectedSchool.lctnScNm ?? state.selectedSchool.atptOfcdcScNm}`
+          : '선택된 학교가 없습니다.'
+        els.searchSchools.disabled = state.loadingSchools
+        els.searchMeals.disabled = state.loadingMeals || !state.selectedSchool
+        els.searchSchools.innerHTML = state.loadingSchools ? '<span class="spinner"></span> 검색 중' : '학교 검색'
+        els.searchMeals.innerHTML = state.loadingMeals ? '<span class="spinner"></span> 조회 중' : '급식 조회'
+
+        if (!state.schools.length) {
+          els.schools.innerHTML = '<div class="message">검색 결과가 이곳에 표시됩니다.</div>'
+        } else {
+          els.schools.innerHTML = state.schools
+            .map((school) => {
+              const selected = state.selectedSchool && state.selectedSchool.sdSchulCode === school.sdSchulCode
+              return `
+                <button class="button school ${selected ? 'selected' : 'secondary'}" data-school="${school.sdSchulCode}">
+                  <span>
+                    <div style="font-weight:700;">${school.schulNm}</div>
+                    <div class="school-meta">${school.lctnScNm ?? school.atptOfcdcScNm} · ${school.schulKndScNm ?? '학교'}</div>
+                  </span>
+                  ${selected ? '✓' : ''}
+                </button>
+              `
+            })
+            .join('')
+        }
+
+        if (!state.mealResult) {
+          els.results.innerHTML = '<div class="message">학교를 선택하고 조회를 실행하면 결과가 표시됩니다.</div>'
+        } else if (!state.mealResult.hasData) {
+          els.results.innerHTML = `<div class="message">급식 정보 없음 · ${state.mealResult.message ?? '선택한 기간에 급식 정보가 없습니다.'}</div>`
+        } else {
+          els.results.innerHTML = `
+            <div style="margin-bottom:12px; font-weight:700;">
+              ${state.mealResult.schoolName} · ${state.mealResult.startDate} ~ ${state.mealResult.endDate}
+            </div>
+            <div class="list">
+              ${state.mealResult.meals.map((meal) => `
+                <div class="meal-day">
+                  <h3 class="meal-date">${meal.date}</h3>
+                  ${meal.menus.map((menu) => `<div class="meal-menu">• ${menu}</div>`).join('')}
+                </div>
+              `).join('')}
+            </div>
+          `
+        }
+      }
+
+      const setStatus = (status, error = null) => {
+        state.status = status
+        state.error = error
+        render()
+      }
+
+      const searchSchools = async () => {
+        const query = els.query.value.trim()
+        if (!query) {
+          setStatus('학교 검색어를 입력하세요.', '학교명을 입력하세요.')
+          return
+        }
+        state.loadingSchools = true
+        setStatus('학교를 찾는 중입니다.')
+        render()
+        try {
+          const response = await fetch(`/api/schools?query=${encodeURIComponent(query)}`)
+          if (!response.ok) throw new Error('학교 검색에 실패했습니다.')
+          const data = await response.json()
+          state.schools = data.schools ?? []
+          state.selectedSchool = state.schools[0] ?? null
+          state.mealResult = null
+          if (state.schools.length === 0) {
+            setStatus('검색 결과가 없습니다.', '검색 결과 없음')
+          } else {
+            setStatus(data.message ?? `${state.schools.length}개 학교를 찾았습니다.`)
+          }
+        } catch (error) {
+          setStatus('학교 검색에 실패했습니다.', error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.')
+        } finally {
+          state.loadingSchools = false
+          render()
+        }
+      }
+
+      const searchMeals = async () => {
+        if (!state.selectedSchool) {
+          setStatus('먼저 학교를 선택하세요.', '먼저 학교를 선택하세요.')
+          return
+        }
+        if (els.startDate.value > els.endDate.value) {
+          setStatus('시작일이 종료일보다 늦을 수 없습니다.', '시작일이 종료일보다 늦을 수 없습니다.')
+          return
+        }
+        const start = new Date(els.startDate.value)
+        const end = new Date(els.endDate.value)
+        const dayDiff = Math.ceil((end - start) / 86400000)
+        if (dayDiff > 31) {
+          setStatus('조회 기간은 최대 31일까지 가능합니다.', '조회 기간은 최대 31일까지 가능합니다.')
+          return
+        }
+        state.loadingMeals = true
+        setStatus('급식 정보를 조회하는 중입니다.')
+        render()
+        try {
+          const response = await fetch('/api/meals', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              atptOfcdcScCode: state.selectedSchool.atptOfcdcScCode,
+              sdSchulCode: state.selectedSchool.sdSchulCode,
+              schoolName: state.selectedSchool.schulNm,
+              startDate: els.startDate.value,
+              endDate: els.endDate.value,
+            }),
+          })
+          if (!response.ok) {
+            let message = await response.text()
+            try {
+              const parsed = JSON.parse(message)
+              message = parsed?.detail ?? message
+            } catch (_) {}
+            throw new Error(message || '급식 조회에 실패했습니다.')
+          }
+          state.mealResult = await response.json()
+          setStatus(state.mealResult.hasData ? '급식 정보를 불러왔습니다.' : state.mealResult.message ?? '급식 정보가 없습니다.')
+        } catch (error) {
+          setStatus('급식 조회에 실패했습니다.', error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.')
+        } finally {
+          state.loadingMeals = false
+          render()
+        }
+      }
+
+      els.searchSchools.addEventListener('click', searchSchools)
+      els.searchMeals.addEventListener('click', searchMeals)
+      els.query.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') searchSchools()
+      })
+      els.schools.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-school]')
+        if (!button) return
+        const school = state.schools.find((item) => item.sdSchulCode === button.dataset.school)
+        if (school) {
+          state.selectedSchool = school
+          render()
+        }
+      })
+
+      render()
+    </script>
+  </body>
+</html>
